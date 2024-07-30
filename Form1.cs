@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,7 +16,7 @@ namespace UploadFileGoogleDrive
     public partial class Form1 : Form
     {
         private OpenFileDialog openFileDialog;
-        private string filePath;
+        private List<string> filePaths;
 
         public Form1()
         {
@@ -25,8 +25,11 @@ namespace UploadFileGoogleDrive
 
             // Initialize OpenFileDialog
             openFileDialog = new OpenFileDialog();
-            openFileDialog.Multiselect = false;
+            openFileDialog.Multiselect = true; // Allow multiple file selection
             openFileDialog.Filter = "All files (*.*)|*.*";
+
+            // Initialize file paths list
+            filePaths = new List<string>();
 
             // Set button click event handlers
             button2.Click += new EventHandler(ButtonSelectFile_Click);
@@ -43,22 +46,53 @@ namespace UploadFileGoogleDrive
         {
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                filePath = openFileDialog.FileName;
-                button1.Text = Path.GetFileName(filePath);
+                foreach (var fileName in openFileDialog.FileNames)
+                {
+                    filePaths.Add(fileName);
+                    listBoxFiles.Items.Add(Path.GetFileName(fileName));
+                }
+            }
+        }
+
+        private void listBoxFiles_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void listBoxFiles_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (files != null && files.Length > 0)
+            {
+                foreach (var file in files)
+                {
+                    filePaths.Add(file);
+                    listBoxFiles.Items.Add(Path.GetFileName(file));
+                }
             }
         }
 
         // Method to handle file upload
         private void ButtonUpload_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(filePath))
+            if (filePaths.Count == 0)
             {
                 MessageBox.Show("Please select a file first.");
                 return;
             }
 
-            // Call your upload method
-            UploadFileToGoogleDrive(filePath);
+            // Call your upload method for each file
+            foreach (var filePath in filePaths)
+            {
+                UploadFileToGoogleDrive(filePath);
+            }
         }
 
         private void UploadFileToGoogleDrive(string path)
