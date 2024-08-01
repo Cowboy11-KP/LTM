@@ -24,6 +24,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.button4 = new System.Windows.Forms.Button();
             this.listBoxFiles = new System.Windows.Forms.ListBox();
+            this.ButtonRemove = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -70,32 +71,43 @@
             this.label3.TabIndex = 4;
             this.label3.Text = "UPLOAD FILE:";
             // 
-            // listBoxFiles
-            // 
-            this.listBoxFiles.FormattingEnabled = true;
-            this.listBoxFiles.ItemHeight = 16;
-            this.listBoxFiles.Location = new System.Drawing.Point(157, 227);
-            this.listBoxFiles.Name = "listBoxFiles";
-            this.listBoxFiles.Size = new System.Drawing.Size(422, 132);
-            this.listBoxFiles.TabIndex = 5;
-            this.listBoxFiles.AllowDrop = true;
-            this.listBoxFiles.DragEnter += new System.Windows.Forms.DragEventHandler(this.listBoxFiles_DragEnter);
-            this.listBoxFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.listBoxFiles_DragDrop);
-            // 
             // button4
             // 
             this.button4.Location = new System.Drawing.Point(580, 408);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(72, 30);
+            this.button4.Size = new System.Drawing.Size(78, 30);
             this.button4.TabIndex = 6;
             this.button4.Text = "Upload";
             this.button4.UseVisualStyleBackColor = true;
+            // 
+            // listBoxFiles
+            // 
+            this.listBoxFiles.AllowDrop = true;
+            this.listBoxFiles.FormattingEnabled = true;
+            this.listBoxFiles.ItemHeight = 16;
+            this.listBoxFiles.Location = new System.Drawing.Point(157, 227);
+            this.listBoxFiles.Name = "listBoxFiles";
+            this.listBoxFiles.Size = new System.Drawing.Size(422, 164);
+            this.listBoxFiles.TabIndex = 5;
+            this.listBoxFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.listBoxFiles_DragDrop);
+            this.listBoxFiles.DragEnter += new System.Windows.Forms.DragEventHandler(this.listBoxFiles_DragEnter);
+            // 
+            // ButtonRemove
+            // 
+            this.ButtonRemove.Location = new System.Drawing.Point(481, 408);
+            this.ButtonRemove.Name = "ButtonRemove";
+            this.ButtonRemove.Size = new System.Drawing.Size(76, 30);
+            this.ButtonRemove.TabIndex = 7;
+            this.ButtonRemove.Text = "Remove";
+            this.ButtonRemove.UseVisualStyleBackColor = true;
+            this.ButtonRemove.Click += new System.EventHandler(this.Button_remove_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(735, 450);
+            this.Controls.Add(this.ButtonRemove);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.listBoxFiles);
             this.Controls.Add(this.label3);
@@ -108,6 +120,7 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         #endregion
@@ -119,5 +132,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.ListBox listBoxFiles;
+        private System.Windows.Forms.Button ButtonRemove;
     }
 }
