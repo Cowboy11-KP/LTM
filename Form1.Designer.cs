@@ -17,104 +17,88 @@
 
         private void InitializeComponent()
         {
-            this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.buttonSelectFile = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
-            this.button4 = new System.Windows.Forms.Button();
+            this.buttonUpdate = new System.Windows.Forms.Button();
             this.listBoxFiles = new System.Windows.Forms.ListBox();
-            this.ButtonRemove = new System.Windows.Forms.Button();
+            this.buttonRemove = new System.Windows.Forms.Button();
             this.SuspendLayout();
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(54, 49);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(69, 16);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "File name:";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(52, 114);
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(29, 29);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(61, 16);
+            this.label2.Size = new System.Drawing.Size(59, 25);
             this.label2.TabIndex = 1;
-            this.label2.Text = "File type:";
+            this.label2.Text = "FILE:";
+            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
-            // button1
+            // buttonSelectFile
             // 
-            this.button1.Location = new System.Drawing.Point(159, 40);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(420, 34);
-            this.button1.TabIndex = 2;
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(157, 106);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(422, 32);
-            this.button2.TabIndex = 3;
-            this.button2.Text = "select";
-            this.button2.UseVisualStyleBackColor = true;
+            this.buttonSelectFile.Location = new System.Drawing.Point(99, 22);
+            this.buttonSelectFile.Name = "buttonSelectFile";
+            this.buttonSelectFile.Size = new System.Drawing.Size(78, 32);
+            this.buttonSelectFile.TabIndex = 3;
+            this.buttonSelectFile.Text = "Select";
+            this.buttonSelectFile.UseVisualStyleBackColor = true;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(52, 199);
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(29, 108);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(95, 16);
+            this.label3.Size = new System.Drawing.Size(194, 25);
             this.label3.TabIndex = 4;
-            this.label3.Text = "UPLOAD FILE:";
+            this.label3.Text = "LIST UPLOAD FILE:";
+            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
-            // button4
+            // buttonUpdate
             // 
-            this.button4.Location = new System.Drawing.Point(580, 408);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(78, 30);
-            this.button4.TabIndex = 6;
-            this.button4.Text = "Upload";
-            this.button4.UseVisualStyleBackColor = true;
+            this.buttonUpdate.Location = new System.Drawing.Point(603, 147);
+            this.buttonUpdate.Name = "buttonUpdate";
+            this.buttonUpdate.Size = new System.Drawing.Size(78, 30);
+            this.buttonUpdate.TabIndex = 6;
+            this.buttonUpdate.Text = "Upload";
+            this.buttonUpdate.UseVisualStyleBackColor = true;
             // 
             // listBoxFiles
             // 
             this.listBoxFiles.AllowDrop = true;
+            this.listBoxFiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.listBoxFiles.FormattingEnabled = true;
-            this.listBoxFiles.ItemHeight = 16;
-            this.listBoxFiles.Location = new System.Drawing.Point(157, 227);
+            this.listBoxFiles.ItemHeight = 20;
+            this.listBoxFiles.Location = new System.Drawing.Point(34, 147);
             this.listBoxFiles.Name = "listBoxFiles";
-            this.listBoxFiles.Size = new System.Drawing.Size(422, 164);
+            this.listBoxFiles.Size = new System.Drawing.Size(545, 264);
             this.listBoxFiles.TabIndex = 5;
             this.listBoxFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.listBoxFiles_DragDrop);
             this.listBoxFiles.DragEnter += new System.Windows.Forms.DragEventHandler(this.listBoxFiles_DragEnter);
             // 
-            // ButtonRemove
+            // buttonRemove
             // 
-            this.ButtonRemove.Location = new System.Drawing.Point(481, 408);
-            this.ButtonRemove.Name = "ButtonRemove";
-            this.ButtonRemove.Size = new System.Drawing.Size(76, 30);
-            this.ButtonRemove.TabIndex = 7;
-            this.ButtonRemove.Text = "Remove";
-            this.ButtonRemove.UseVisualStyleBackColor = true;
-            this.ButtonRemove.Click += new System.EventHandler(this.Button_remove_Click);
+            this.buttonRemove.Location = new System.Drawing.Point(605, 213);
+            this.buttonRemove.Name = "buttonRemove";
+            this.buttonRemove.Size = new System.Drawing.Size(76, 30);
+            this.buttonRemove.TabIndex = 7;
+            this.buttonRemove.Text = "Remove";
+            this.buttonRemove.UseVisualStyleBackColor = true;
+            this.buttonRemove.Click += new System.EventHandler(this.ButtonRemove_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(735, 450);
-            this.Controls.Add(this.ButtonRemove);
-            this.Controls.Add(this.button4);
+            this.Controls.Add(this.buttonRemove);
+            this.Controls.Add(this.buttonUpdate);
             this.Controls.Add(this.listBoxFiles);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.buttonSelectFile);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
             this.Name = "Form1";
             this.Text = "Upload File Google Drive";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -124,14 +108,11 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button buttonSelectFile;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button buttonUpdate;
         private System.Windows.Forms.ListBox listBoxFiles;
-        private System.Windows.Forms.Button ButtonRemove;
+        private System.Windows.Forms.Button buttonRemove;
     }
 }

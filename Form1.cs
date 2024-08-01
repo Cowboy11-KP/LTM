@@ -17,7 +17,6 @@ namespace UploadFileGoogleDrive
     {
         private OpenFileDialog openFileDialog;
         private List<string> filePaths;
-
         public Form1()
         {
             InitializeComponent();
@@ -28,15 +27,23 @@ namespace UploadFileGoogleDrive
             openFileDialog.Multiselect = true; // Allow multiple file selection
             openFileDialog.Filter = "All files (*.*)|*.*";
 
+            // Initialize FolderBrowserDialog
+
             // Initialize file paths list
             filePaths = new List<string>();
 
             // Set button click event handlers
-            button2.Click += new EventHandler(ButtonSelectFile_Click);
-            button4.Click += new EventHandler(ButtonUpload_Click);
-            ButtonRemove.Click += new EventHandler(Button_remove_Click);
+            buttonSelectFile.Click += new EventHandler(ButtonSelectFile_Click);
+            buttonUpdate.Click += new EventHandler(ButtonUpload_Click);
+            buttonRemove.Click += new EventHandler(ButtonRemove_Click);
+
             // Set SelectionMode to MultiExtended
             listBoxFiles.SelectionMode = SelectionMode.MultiExtended;
+            //Set enabled button
+            buttonRemove.Enabled = listBoxFiles.SelectedIndices.Count > 0;
+            
+            listBoxFiles.SelectedIndexChanged += listBoxFiles_SelectedIndexChanged;
+            
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -54,10 +61,10 @@ namespace UploadFileGoogleDrive
                     filePaths.Add(fileName);
                     listBoxFiles.Items.Add(Path.GetFileName(fileName));
                 }
+                enableButtonUpdate();
             }
         }
-
-        private void listBoxFiles_DragEnter(object sender, DragEventArgs e)
+    private void listBoxFiles_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -83,6 +90,11 @@ namespace UploadFileGoogleDrive
         }
 
         // Method to handle file upload
+
+        private void enableButtonUpdate()
+        {
+            buttonUpdate.Enabled = listBoxFiles.Items.Count > 0;
+        }
         private async void ButtonUpload_Click(object sender, EventArgs e)
         {
             if (filePaths.Count == 0)
@@ -161,14 +173,15 @@ namespace UploadFileGoogleDrive
                 mimeType = regKey.GetValue("Content Type").ToString();
             return mimeType;
         }
-        private void Button_remove_Click(object sender, EventArgs e)
+        private void listBoxFiles_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // check if any item is selected 
+            buttonRemove.Enabled = listBoxFiles.SelectedIndices.Count > 0;
+        }
+        private void ButtonRemove_Click(object sender, EventArgs e)
         {
             var selectedIndices = listBoxFiles.SelectedIndices.Cast<int>().ToList();
-            if (selectedIndices.Count == 0)
-            {
-                MessageBox.Show("Please select a file to remove.", "Notification", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+            
             selectedIndices.Sort();
             selectedIndices.Reverse();
 
@@ -186,6 +199,17 @@ namespace UploadFileGoogleDrive
                     filePaths.Remove(filePathToRemove);
                 }
             }
+            enableButtonUpdate();
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
