@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Google.Apis.Auth.OAuth2;
@@ -8,8 +10,6 @@ using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
-using System.IO;
-using System.Threading;
 
 namespace UploadFileGoogleDrive
 {
@@ -19,6 +19,8 @@ namespace UploadFileGoogleDrive
         private List<string> filePaths;
         private DriveService service;
         private bool isChangingAccount;
+        private ProgressForm progressForm;
+
         public Form1()
         {
             InitializeComponent();
@@ -28,8 +30,6 @@ namespace UploadFileGoogleDrive
             openFileDialog = new OpenFileDialog();
             openFileDialog.Multiselect = true; // Allow multiple file selection
             openFileDialog.Filter = "All files (*.*)|*.*";
-
-            // Initialize FolderBrowserDialog
 
             // Initialize file paths list
             filePaths = new List<string>();
@@ -47,6 +47,8 @@ namespace UploadFileGoogleDrive
 
             listBoxFiles.SelectedIndexChanged += listBoxFiles_SelectedIndexChanged;
 
+            // Initialize ProgressForm
+            progressForm = new ProgressForm();
         }
 
         private async void Form1_Load(object sender, EventArgs e)
@@ -95,7 +97,6 @@ namespace UploadFileGoogleDrive
             });
         }
 
-
         private void DisplayUserEmail()
         {
             try
@@ -124,6 +125,7 @@ namespace UploadFileGoogleDrive
                 enableButtonUpdate();
             }
         }
+
         private void listBoxFiles_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -150,61 +152,53 @@ namespace UploadFileGoogleDrive
         }
 
         // Method to handle file upload
-
         private void enableButtonUpdate()
         {
             buttonUpdate.Enabled = listBoxFiles.Items.Count > 0;
         }
 
-
         private async void ButtonUpload_Click(object sender, EventArgs e)
-{
-    if (filePaths.Count == 0)
-    {
-        MessageBox.Show("Please select a file first.");
-        return;
-    }
+        {
+            if (filePaths.Count == 0)
+            {
+                MessageBox.Show("Please select a file first.");
+                return;
+            }
 
-    // Hiển thị ProgressBar và thiết lập trạng thái
-    progressBar1.Visible = true;
-    progressBar1.Maximum = filePaths.Count;
-    progressBar1.Value = 0;
+            // Show the ProgressForm
+            progressForm.Show();
+            progressForm.ProgressBar.Maximum = filePaths.Count;
+            progressForm.ProgressBar.Value = 0;
 
-    // Tạo danh sách các nhiệm vụ tải lên
-    var uploadTasks = filePaths.Select(filePath => Task.Run(() =>
-    {
-        UploadFileToGoogleDrive(filePath);
-        // Cập nhật ProgressBar sau khi tải xong một tệp
-        this.Invoke((Action)(() => UpdateProgressBar()));
-    }));
+            // Create and run upload tasks
+            var uploadTasks = filePaths.Select(filePath => Task.Run(() =>
+            {
+                UploadFileToGoogleDrive(filePath);
+                // Update ProgressBar after each file is uploaded
+                this.Invoke((Action)(() => UpdateProgressBar()));
+            }));
 
-    // Đợi tất cả các nhiệm vụ tải lên hoàn tất
-    await Task.WhenAll(uploadTasks);
-    this.Invoke((Action)(() =>
-    {
-        progressBar1.Value = progressBar1.Maximum;
-        MessageBox.Show("Hoàn tất. Tất cả các tệp đã được tải lên thành công.");
-    }));
+            await Task.WhenAll(uploadTasks);
 
-    // Xóa các mục trong ListBox và danh sách filePaths
-    progressBar1.Visible = false;
-    listBoxFiles.Items.Clear();
-    filePaths.Clear();
-}
+            progressForm.Invoke((Action)(() =>
+            {
+                progressForm.ProgressBar.Value = progressForm.ProgressBar.Maximum;
+                progressForm.StatusLabel.Text = "Hoàn tất. Tất cả các tệp đã được tải lên thành công.";
+            }));
 
-private void UpdateProgressBar()
-{
-    if (progressBar1.InvokeRequired)
-    {
-        progressBar1.Invoke(new Action(UpdateProgressBar));
-    }
-    else
-    {
-        // Đảm bảo rằng giá trị không vượt quá giá trị tối đa
-        progressBar1.Value = Math.Min(progressBar1.Value + 1, progressBar1.Maximum);
-    }
-}
+            // Close the ProgressForm after a short delay
+            await Task.Delay(2000);
+            progressForm.Invoke((Action)(() => progressForm.Hide()));
 
+            // Clear the ListBox and filePaths list
+            listBoxFiles.Items.Clear();
+            filePaths.Clear();
+        }
+
+        private void UpdateProgressBar()
+        {
+            progressForm.ProgressBar.Value = Math.Min(progressForm.ProgressBar.Value + 1, progressForm.ProgressBar.Maximum);
+        }
 
         private string UploadFileToGoogleDrive(string path)
         {
@@ -230,7 +224,8 @@ private void UpdateProgressBar()
                 MessageBox.Show("An error occurred: " + ex.Message);
                 return null;
             }
-        }   
+        }
+
         private string GetMimeType(string fileName)
         {
             string mimeType = "application/unknown";
@@ -240,15 +235,15 @@ private void UpdateProgressBar()
                 mimeType = regKey.GetValue("Content Type").ToString();
             return mimeType;
         }
+
         private void listBoxFiles_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // check if any item is selected 
             buttonRemove.Enabled = listBoxFiles.SelectedIndices.Count > 0;
         }
+
         private void ButtonRemove_Click(object sender, EventArgs e)
         {
             var selectedIndices = listBoxFiles.SelectedIndices.Cast<int>().ToList();
-
             selectedIndices.Sort();
             selectedIndices.Reverse();
 
@@ -273,10 +268,12 @@ private void UpdateProgressBar()
         {
 
         }
+
         private void labelTextFile_Click(object sender, EventArgs e)
         {
             this.label2.Text = "FILE:";
         }
+
         private void labelTextAcc_Click(object sender, EventArgs e)
         {
 
@@ -289,35 +286,32 @@ private void UpdateProgressBar()
 
         private async void buttonChangeAccount_Click(object sender, EventArgs e)
         {
+            if (isChangingAccount)
             {
-                if (isChangingAccount)
-                {
-                    return;
-                }
-                try
-                {
-                    isChangingAccount = true;
-                    string credPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
-                    credPath = Path.Combine(credPath, ".credentials/drive-dotnet-quickstart.json");
+                return;
+            }
+            try
+            {
+                isChangingAccount = true;
+                string credPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
+                credPath = Path.Combine(credPath, ".credentials/drive-dotnet-quickstart.json");
 
-                    if (Directory.Exists(credPath))
-                    {
-                        Directory.Delete(credPath, true);
-                    }
-
-
-                    await initializeDriveServiceAsync();
-                    DisplayUserEmail();
-                    isChangingAccount = false;
-                }
-                catch (Exception ex)
+                if (Directory.Exists(credPath))
                 {
-                    MessageBox.Show("An error occurred while changing accounts: " + ex.Message);
+                    Directory.Delete(credPath, true);
                 }
-                finally
-                {
-                    isChangingAccount = false;
-                }
+
+                await initializeDriveServiceAsync();
+                DisplayUserEmail();
+                isChangingAccount = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error occurred while changing accounts: " + ex.Message);
+            }
+            finally
+            {
+                isChangingAccount = false;
             }
         }
     }
