@@ -1,4 +1,4 @@
-﻿namespace UploadFileGoogleDrive
+namespace UploadFileGoogleDrive
 {
     partial class Form1
     {
@@ -26,7 +26,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.labelNameAddress = new System.Windows.Forms.Label();
             this.buttonChangeAccount = new System.Windows.Forms.Button();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // 
             // label2
@@ -77,7 +76,7 @@
             this.listBoxFiles.ItemHeight = 20;
             this.listBoxFiles.Location = new System.Drawing.Point(34, 147);
             this.listBoxFiles.Name = "listBoxFiles";
-            this.listBoxFiles.Size = new System.Drawing.Size(545, 204);
+            this.listBoxFiles.Size = new System.Drawing.Size(545, 244);
             this.listBoxFiles.TabIndex = 5;
             this.listBoxFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.listBoxFiles_DragDrop);
             this.listBoxFiles.DragEnter += new System.Windows.Forms.DragEventHandler(this.listBoxFiles_DragEnter);
@@ -123,19 +122,11 @@
             this.buttonChangeAccount.UseVisualStyleBackColor = true;
             this.buttonChangeAccount.Click += new System.EventHandler(this.buttonChangeAccount_Click);
             // 
-            // progressBar1
-            // 
-            this.progressBar1.Location = new System.Drawing.Point(34, 388);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(545, 28);
-            this.progressBar1.TabIndex = 11;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(735, 450);
-            this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.buttonChangeAccount);
             this.Controls.Add(this.labelNameAddress);
             this.Controls.Add(this.label1);
@@ -163,6 +154,5 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label labelNameAddress;
         private System.Windows.Forms.Button buttonChangeAccount;
-        private System.Windows.Forms.ProgressBar progressBar1;
     }
 }
