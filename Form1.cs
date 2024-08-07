@@ -19,7 +19,6 @@ namespace UploadFileGoogleDrive
         private List<string> filePaths;
         private DriveService service;
         private bool isChangingAccount;
-        private string currentUserEmail;
         public Form1()
         {
             InitializeComponent();
@@ -50,10 +49,10 @@ namespace UploadFileGoogleDrive
 
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
             // Any initialization code
-            initializeDriveServiceAsync();
+            await initializeDriveServiceAsync();
             // Display user email
             DisplayUserEmail();
         }
@@ -64,41 +63,38 @@ namespace UploadFileGoogleDrive
             string credPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
             credPath = Path.Combine(credPath, ".credentials/drive-dotnet-quickstart.json");
 
-            // Check if credentials already exist
             if (System.IO.File.Exists(credPath + ".dat"))
             {
-                // Load existing credentials
                 using (var stream = new FileStream(credPath, FileMode.Open, FileAccess.Read))
                 {
-                    credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                    credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
                         GoogleClientSecrets.FromStream(stream).Secrets,
                         new[] { DriveService.Scope.DriveFile },
                         "user",
                         CancellationToken.None,
-                        new FileDataStore(credPath, true)).Result;
+                        new FileDataStore(credPath, true));
                 }
             }
             else
             {
-                // Perform authorization
                 using (var stream = new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
                 {
-                    credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                    credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
                         GoogleClientSecrets.FromStream(stream).Secrets,
                         new[] { DriveService.Scope.DriveFile },
                         "user",
                         CancellationToken.None,
-                        new FileDataStore(credPath, true)).Result;
+                        new FileDataStore(credPath, true));
                 }
             }
 
-            // Create Drive API service
             service = new DriveService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,
                 ApplicationName = "Drive API .NET Quickstart",
             });
         }
+
 
         private void DisplayUserEmail()
         {
@@ -159,27 +155,56 @@ namespace UploadFileGoogleDrive
         {
             buttonUpdate.Enabled = listBoxFiles.Items.Count > 0;
         }
+
+
         private async void ButtonUpload_Click(object sender, EventArgs e)
-        {
-            if (filePaths.Count == 0)
-            {
-                MessageBox.Show("Please select a file first.");
-                return;
-            }
+{
+    if (filePaths.Count == 0)
+    {
+        MessageBox.Show("Please select a file first.");
+        return;
+    }
 
-            // Call your upload method for each file
-            List<string> fileIds = new List<string>();
-            foreach (var filePath in filePaths)
-            {
-                string fileId = await Task.Run(() => UploadFileToGoogleDrive(filePath));
-                if (!string.IsNullOrEmpty(fileId))
-                {
-                    fileIds.Add(fileId);
-                }
-            }
+    // Hiển thị ProgressBar và thiết lập trạng thái
+    progressBar1.Visible = true;
+    progressBar1.Maximum = filePaths.Count;
+    progressBar1.Value = 0;
 
-            MessageBox.Show("Hoàn tất. Tất cả các tệp đã được tải lên thành công.");
-        }
+    // Tạo danh sách các nhiệm vụ tải lên
+    var uploadTasks = filePaths.Select(filePath => Task.Run(() =>
+    {
+        UploadFileToGoogleDrive(filePath);
+        // Cập nhật ProgressBar sau khi tải xong một tệp
+        this.Invoke((Action)(() => UpdateProgressBar()));
+    }));
+
+    // Đợi tất cả các nhiệm vụ tải lên hoàn tất
+    await Task.WhenAll(uploadTasks);
+    this.Invoke((Action)(() =>
+    {
+        progressBar1.Value = progressBar1.Maximum;
+        MessageBox.Show("Hoàn tất. Tất cả các tệp đã được tải lên thành công.");
+    }));
+
+    // Xóa các mục trong ListBox và danh sách filePaths
+    progressBar1.Visible = false;
+    listBoxFiles.Items.Clear();
+    filePaths.Clear();
+}
+
+private void UpdateProgressBar()
+{
+    if (progressBar1.InvokeRequired)
+    {
+        progressBar1.Invoke(new Action(UpdateProgressBar));
+    }
+    else
+    {
+        // Đảm bảo rằng giá trị không vượt quá giá trị tối đa
+        progressBar1.Value = Math.Min(progressBar1.Value + 1, progressBar1.Maximum);
+    }
+}
+
 
         private string UploadFileToGoogleDrive(string path)
         {
@@ -205,7 +230,7 @@ namespace UploadFileGoogleDrive
                 MessageBox.Show("An error occurred: " + ex.Message);
                 return null;
             }
-        }
+        }   
         private string GetMimeType(string fileName)
         {
             string mimeType = "application/unknown";
@@ -281,7 +306,7 @@ namespace UploadFileGoogleDrive
                     }
 
 
-                    await Task.Run(() => initializeDriveServiceAsync());
+                    await initializeDriveServiceAsync();
                     DisplayUserEmail();
                     isChangingAccount = false;
                 }
