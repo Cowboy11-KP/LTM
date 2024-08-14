@@ -58,12 +58,12 @@ namespace UploadGoogleDrive
             await googleDriveService.InitializeAsync();
             DisplayUserEmail();
         }
-        private void enableButtonUpdate()
+        private void EnableButtonUpdate()
         {
             buttonUpdate.Enabled = listBoxFiles.Items.Count > 0;
         }
 
-        private void listBoxFiles_DragEnter(object sender, DragEventArgs e)
+        private void ListBoxFiles_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -75,7 +75,7 @@ namespace UploadGoogleDrive
             }
         }
 
-        private void listBoxFiles_DragDrop(object sender, DragEventArgs e)
+        private void ListBoxFiles_DragDrop(object sender, DragEventArgs e)
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
             if (files != null && files.Length > 0)
@@ -85,11 +85,11 @@ namespace UploadGoogleDrive
                     filePaths.Add(file);
                     listBoxFiles.Items.Add(Path.GetFileName(file));
                 }
-                enableButtonUpdate();
+                EnableButtonUpdate();
             }
         }
 
-        private async void ButtonSelectFile_Click(object sender, EventArgs e)
+        private void ButtonSelectFile_Click(object sender, EventArgs e)
         {
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {

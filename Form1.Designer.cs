@@ -27,7 +27,6 @@ namespace UploadGoogleDrive
         /// </summary>
         private void InitializeComponent()
         {
-
             this.label2 = new System.Windows.Forms.Label();
             this.buttonSelectFile = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
@@ -52,12 +51,13 @@ namespace UploadGoogleDrive
             // 
             // buttonSelectFile
             // 
+            this.buttonSelectFile.BackColor = System.Drawing.Color.DeepSkyBlue;
             this.buttonSelectFile.Location = new System.Drawing.Point(99, 22);
             this.buttonSelectFile.Name = "buttonSelectFile";
             this.buttonSelectFile.Size = new System.Drawing.Size(78, 32);
             this.buttonSelectFile.TabIndex = 3;
             this.buttonSelectFile.Text = "Select";
-            this.buttonSelectFile.UseVisualStyleBackColor = true;
+            this.buttonSelectFile.UseVisualStyleBackColor = false;
             // 
             // label3
             // 
@@ -72,12 +72,14 @@ namespace UploadGoogleDrive
             // 
             // buttonUpdate
             // 
+            this.buttonUpdate.BackColor = System.Drawing.Color.Cyan;
+            this.buttonUpdate.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.buttonUpdate.Location = new System.Drawing.Point(603, 147);
             this.buttonUpdate.Name = "buttonUpdate";
             this.buttonUpdate.Size = new System.Drawing.Size(78, 30);
             this.buttonUpdate.TabIndex = 6;
             this.buttonUpdate.Text = "Upload";
-            this.buttonUpdate.UseVisualStyleBackColor = true;
+            this.buttonUpdate.UseVisualStyleBackColor = false;
             // 
             // listBoxFiles
             // 
@@ -89,17 +91,18 @@ namespace UploadGoogleDrive
             this.listBoxFiles.Name = "listBoxFiles";
             this.listBoxFiles.Size = new System.Drawing.Size(545, 244);
             this.listBoxFiles.TabIndex = 5;
-            this.listBoxFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.listBoxFiles_DragDrop);
-            this.listBoxFiles.DragEnter += new System.Windows.Forms.DragEventHandler(this.listBoxFiles_DragEnter);
+            this.listBoxFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.ListBoxFiles_DragDrop);
+            this.listBoxFiles.DragEnter += new System.Windows.Forms.DragEventHandler(this.ListBoxFiles_DragEnter);
             // 
             // buttonRemove
             // 
+            this.buttonRemove.BackColor = System.Drawing.Color.Red;
             this.buttonRemove.Location = new System.Drawing.Point(605, 213);
             this.buttonRemove.Name = "buttonRemove";
             this.buttonRemove.Size = new System.Drawing.Size(76, 30);
             this.buttonRemove.TabIndex = 7;
             this.buttonRemove.Text = "Remove";
-            this.buttonRemove.UseVisualStyleBackColor = true;
+            this.buttonRemove.UseVisualStyleBackColor = false;
             this.buttonRemove.Click += new System.EventHandler(this.ButtonRemove_Click);
             // 
             // label1
@@ -125,12 +128,13 @@ namespace UploadGoogleDrive
             // 
             // buttonChangeAccount
             // 
+            this.buttonChangeAccount.BackColor = System.Drawing.Color.AliceBlue;
             this.buttonChangeAccount.Location = new System.Drawing.Point(576, 22);
             this.buttonChangeAccount.Name = "buttonChangeAccount";
             this.buttonChangeAccount.Size = new System.Drawing.Size(131, 36);
             this.buttonChangeAccount.TabIndex = 10;
             this.buttonChangeAccount.Text = "Change Account";
-            this.buttonChangeAccount.UseVisualStyleBackColor = true;
+            this.buttonChangeAccount.UseVisualStyleBackColor = false;
             this.buttonChangeAccount.Click += new System.EventHandler(this.ButtonChangeAccount_Click);
             // 
             // Form1
