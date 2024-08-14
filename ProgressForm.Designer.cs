@@ -1,10 +1,16 @@
-﻿namespace UploadFileGoogleDrive
+﻿namespace UploadGoogleDrive
 {
     partial class ProgressForm
     {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        // Clean up any resources being used.
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -13,8 +19,6 @@
             }
             base.Dispose(disposing);
         }
-
-        #region Windows Form Designer generated code
 
         private void InitializeComponent()
         {
@@ -55,9 +59,6 @@
             this.PerformLayout();
 
         }
-
-        #endregion
-
         private System.Windows.Forms.ProgressBar progressBar;
         private System.Windows.Forms.Label statusLabel;
     }

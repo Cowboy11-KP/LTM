@@ -1,7 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace UploadFileGoogleDrive
+namespace UploadGoogleDrive
 {
     public partial class ProgressForm : Form
     {
@@ -9,7 +16,6 @@ namespace UploadFileGoogleDrive
         {
             InitializeComponent();
         }
-
         // Expose the ProgressBar and StatusLabel to be accessible from outside
         public ProgressBar ProgressBar => this.progressBar;
         public Label StatusLabel => this.statusLabel;
