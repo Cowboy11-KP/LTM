@@ -3,9 +3,12 @@ using Google.Apis.Drive.v3;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace UploadGoogleDrive
 {
@@ -18,65 +21,78 @@ namespace UploadGoogleDrive
             UserCredential credential;
             string credPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), ".credentials/drive-dotnet-quickstart.json");
 
-            if (File.Exists(credPath + ".dat"))
-            {
-                credential = await AuthorizeAsync(credPath);
-            }
-            else
-            {
-                using (var stream = new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
-                {
-                    credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
-                        GoogleClientSecrets.FromStream(stream).Secrets,
-                        new[] { DriveService.Scope.DriveFile },
-                        "user",
-                        CancellationToken.None,
-                        new FileDataStore(credPath, true));
-                }
-            }
-
-            _service = new DriveService(new BaseClientService.Initializer
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = "Drive API .NET Quickstart"
-            });
-        }
-
-        private async Task<UserCredential> AuthorizeAsync(string credPath)
-        {
-            using (var stream = new FileStream(credPath, FileMode.Open, FileAccess.Read))
-            {
-                return await GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    GoogleClientSecrets.FromStream(stream).Secrets,
-                    new[] { DriveService.Scope.DriveFile },
-                    "user",
-                    CancellationToken.None,
-                    new FileDataStore(credPath, true));
-            }
-        }
-
-        public string UploadFile(string path)
-        {
             try
             {
-                var fileMetadata = new Google.Apis.Drive.v3.Data.File
+                if (File.Exists(credPath))
                 {
-                    Name = Path.GetFileName(path)
-                };
-
-                using (var stream = new FileStream(path, FileMode.Open))
-                {
-                    var request = _service.Files.Create(fileMetadata, stream, GetMimeType(path));
-                    request.Fields = "id";
-                    request.Upload();
-
-                    return request.ResponseBody?.Id;
+                    using (var stream = new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
+                    {
+                        credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
+                            GoogleClientSecrets.FromStream(stream).Secrets,
+                            new[] { DriveService.Scope.DriveFile },
+                            "user",
+                            CancellationToken.None,
+                            new FileDataStore(credPath, true));
+                    }
                 }
+                else
+                {
+                    using (var stream = new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
+                    {
+                        credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
+                            GoogleClientSecrets.FromStream(stream).Secrets,
+                            new[] { DriveService.Scope.DriveFile },
+                            "user",
+                            CancellationToken.None,
+                            new FileDataStore(credPath, true));
+                    }
+                }
+
+                _service = new DriveService(new BaseClientService.Initializer
+                {
+                    HttpClientInitializer = credential,
+                    ApplicationName = "Drive API .NET Quickstart"
+                });
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("An error occurred during upload.", ex);
+                MessageBox.Show($"Failed to initialize Google Drive service: {ex.Message}");
             }
+        }
+
+        public async Task<string> UploadFileAsync(string path, int retryCount = 3, CancellationToken cancellationToken = default)
+        {
+            while (retryCount > 0)
+            {
+                try
+                {
+                    var fileMetadata = new Google.Apis.Drive.v3.Data.File
+                    {
+                        Name = Path.GetFileName(path)
+                    };
+
+                    using (var stream = new FileStream(path, FileMode.Open))
+                    {
+                        var request = _service.Files.Create(fileMetadata, stream, GetMimeType(path));
+                        request.Fields = "id";
+                        var upload = await request.UploadAsync(cancellationToken);
+
+                        if (upload.Status == Google.Apis.Upload.UploadStatus.Failed)
+                        {
+                            throw new InvalidOperationException($"Failed to upload {Path.GetFileName(path)}: {upload.Exception.Message}");
+                        }
+
+                        return request.ResponseBody?.Id;
+                    }
+                }
+                catch
+                {
+                    retryCount--;
+                    if (retryCount == 0) throw; // Nếu hết lần thử, báo lỗi
+                }
+            }
+
+            return null; // Trường hợp không thành công sau các lần thử
         }
 
         public string GetUserEmail()

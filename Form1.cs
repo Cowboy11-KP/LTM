@@ -15,6 +15,7 @@ namespace UploadGoogleDrive
         private GoogleDriveService googleDriveService;
         private bool isChangingAccount;
         private ProgressForm progressForm;
+        private CancellationTokenSource _cancellationTokenSource;
 
         public Form1()
         {
@@ -58,6 +59,7 @@ namespace UploadGoogleDrive
             await googleDriveService.InitializeAsync();
             DisplayUserEmail();
         }
+
         private void EnableButtonUpdate()
         {
             buttonUpdate.Enabled = listBoxFiles.Items.Count > 0;
@@ -110,51 +112,80 @@ namespace UploadGoogleDrive
                 return;
             }
 
+            // Hiển thị form tiến trình và thiết lập trạng thái
             progressForm.Show();
             progressForm.ProgressBar.Maximum = filePaths.Count;
             progressForm.ProgressBar.Value = 0;
+            progressForm.CancelButton.Enabled = true;
+            progressForm.StatusLabel.Text = "Bắt đầu tải lên...";
 
-            var uploadTasks = filePaths.Select(filePath => Task.Run(() =>
+            _cancellationTokenSource = new CancellationTokenSource();
+            var token = _cancellationTokenSource.Token;
+
+            var semaphore = new SemaphoreSlim(3); // Giới hạn 3 tệp tải lên cùng lúc
+
+            var uploadTasks = filePaths.Select(async filePath =>
             {
-                googleDriveService.UploadFile(filePath);
-                Invoke((Action)UpdateProgressBar);
-            }));
+                await semaphore.WaitAsync(token);
+                try
+                {
+                    if (token.IsCancellationRequested)
+                        return;
 
-            await Task.WhenAll(uploadTasks);
+                    // Tải lên tệp và cập nhật tiến trình
+                    await googleDriveService.UploadFileAsync(filePath, cancellationToken: token);
+                    this.Invoke((Action)(() => UpdateProgressBar()));
+                }
+                catch (Exception ex)
+                {
+                    if (!token.IsCancellationRequested)
+                        this.Invoke((Action)(() => MessageBox.Show($"An error occurred while uploading {Path.GetFileName(filePath)}: {ex.Message}")));
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            });
 
-            progressForm.StatusLabel.Text = "Hoàn tất. Tất cả các tệp đã được tải lên thành công.";
-            await Task.Delay(2000);
-            progressForm.Hide();
-
-            listBoxFiles.Items.Clear();
-            filePaths.Clear();
+            try
+            {
+                await Task.WhenAll(uploadTasks);
+                progressForm.Invoke((Action)(() => progressForm.StatusLabel.Text = "Hoàn tất. Tất cả các tệp đã được tải lên thành công."));
+            }
+            catch (OperationCanceledException)
+            {
+                progressForm.Invoke((Action)(() => progressForm.StatusLabel.Text = "Tải lên đã bị hủy."));
+            }
+            finally
+            {
+                // Ẩn form tiến trình sau khi hoàn tất
+                await Task.Delay(2000); // Thời gian chờ để người dùng thấy thông báo
+                progressForm.Invoke((Action)(() => progressForm.Hide()));
+                listBoxFiles.Invoke((Action)(() =>
+                {
+                    listBoxFiles.Items.Clear();
+                    filePaths.Clear();
+                }));
+            }
         }
 
         private void UpdateProgressBar()
         {
-            progressForm.ProgressBar.Value = Math.Min(progressForm.ProgressBar.Value + 1, progressForm.ProgressBar.Maximum);
+            progressForm.ProgressBar.Value++;
+            progressForm.StatusLabel.Text = $"Đã tải {progressForm.ProgressBar.Value} / {progressForm.ProgressBar.Maximum} tệp";
         }
 
         private void ButtonRemove_Click(object sender, EventArgs e)
         {
-            var selectedFiles = listBoxFiles.SelectedIndices.Cast<int>().OrderByDescending(i => i).ToList();
-            foreach (int index in selectedFiles)
+            if (listBoxFiles.SelectedIndices.Count > 0)
             {
-                string fileName = listBoxFiles.Items[index].ToString();
-                filePaths.Remove(filePaths.First(f => Path.GetFileName(f) == fileName));
-                listBoxFiles.Items.RemoveAt(index);
+                foreach (var index in listBoxFiles.SelectedIndices.Cast<int>().OrderByDescending(i => i))
+                {
+                    filePaths.RemoveAt(index);
+                    listBoxFiles.Items.RemoveAt(index);
+                }
+                UpdateButtonState();
             }
-            UpdateButtonState();
-        }
-
-        private void ListBoxFiles_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            buttonRemove.Enabled = listBoxFiles.SelectedIndices.Count > 0;
-        }
-
-        private void UpdateButtonState()
-        {
-            buttonUpdate.Enabled = listBoxFiles.Items.Count > 0;
         }
 
         private async void ButtonChangeAccount_Click(object sender, EventArgs e)
@@ -184,16 +215,26 @@ namespace UploadGoogleDrive
             }
         }
 
+        private void ListBoxFiles_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            buttonRemove.Enabled = listBoxFiles.SelectedItems.Count > 0;
+        }
+
+        private void UpdateButtonState()
+        {
+            buttonUpdate.Enabled = filePaths.Any();
+        }
+
         private void DisplayUserEmail()
         {
             try
             {
-                var email = googleDriveService.GetUserEmail();
-                labelNameAddress.Text = email;
+                string email = googleDriveService.GetUserEmail();
+                labelUserEmail.Text = $"Tài khoản: {email}";
             }
             catch (Exception ex)
             {
-                MessageBox.Show("An error occurred while fetching user info: " + ex.Message);
+                MessageBox.Show($"Đã xảy ra lỗi khi lấy thông tin tài khoản: {ex.Message}");
             }
         }
     }

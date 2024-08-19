@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace UploadGoogleDrive
@@ -16,13 +10,21 @@ namespace UploadGoogleDrive
         {
             InitializeComponent();
         }
-        // Expose the ProgressBar and StatusLabel to be accessible from outside
+
         public ProgressBar ProgressBar => this.progressBar;
         public Label StatusLabel => this.statusLabel;
+        public new Button CancelButton =>  this.cancelButton;
 
         private void ProgressForm_Load(object sender, EventArgs e)
         {
 
         }
+
+        private void CancelButton_Click(object sender, EventArgs e)
+        {
+            OnCancelRequested();
+        }
+
+        public event Action OnCancelRequested = () => { };
     }
 }
