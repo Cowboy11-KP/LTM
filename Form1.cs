@@ -112,7 +112,10 @@ namespace UploadGoogleDrive
                 return;
             }
 
-            // Hiển thị form tiến trình và thiết lập trạng thái
+            // Đăng ký sự kiện OnCancelRequested chỉ một lần
+            progressForm.OnCancelRequested -= CancelUpload;
+            progressForm.OnCancelRequested += CancelUpload;
+
             progressForm.Show();
             progressForm.ProgressBar.Maximum = filePaths.Count;
             progressForm.ProgressBar.Value = 0;
@@ -123,6 +126,8 @@ namespace UploadGoogleDrive
             var token = _cancellationTokenSource.Token;
 
             var semaphore = new SemaphoreSlim(3); // Giới hạn 3 tệp tải lên cùng lúc
+            var uploadedFilesCount = 0;
+            var successfullyUploadedFiles = new List<string>(); // Danh sách các tệp đã tải lên thành công
 
             var uploadTasks = filePaths.Select(async filePath =>
             {
@@ -132,9 +137,13 @@ namespace UploadGoogleDrive
                     if (token.IsCancellationRequested)
                         return;
 
-                    // Tải lên tệp và cập nhật tiến trình
                     await googleDriveService.UploadFileAsync(filePath, cancellationToken: token);
-                    this.Invoke((Action)(() => UpdateProgressBar()));
+                    successfullyUploadedFiles.Add(filePath); // Thêm tệp đã tải lên thành công vào danh sách
+                    this.Invoke((Action)(() =>
+                    {
+                        UpdateProgressBar();
+                        uploadedFilesCount++;
+                    }));
                 }
                 catch (Exception ex)
                 {
@@ -154,19 +163,43 @@ namespace UploadGoogleDrive
             }
             catch (OperationCanceledException)
             {
-                progressForm.Invoke((Action)(() => progressForm.StatusLabel.Text = "Tải lên đã bị hủy."));
+                progressForm.Invoke((Action)(() =>
+                {
+                    ShowCancelMessage(uploadedFilesCount);
+                    progressForm.StatusLabel.Text = "Tải lên đã bị hủy.";
+                }));
             }
             finally
             {
-                // Ẩn form tiến trình sau khi hoàn tất
-                await Task.Delay(2000); // Thời gian chờ để người dùng thấy thông báo
+                await Task.Delay(2000);
                 progressForm.Invoke((Action)(() => progressForm.Hide()));
                 listBoxFiles.Invoke((Action)(() =>
                 {
-                    listBoxFiles.Items.Clear();
-                    filePaths.Clear();
+                    // Xóa các tệp đã tải lên thành công từ ListBox và filePaths
+                    foreach (var file in successfullyUploadedFiles)
+                    {
+                        var fileName = Path.GetFileName(file);
+                        int index = listBoxFiles.Items.IndexOf(fileName);
+                        if (index != -1)
+                        {
+                            listBoxFiles.Items.RemoveAt(index);
+                            filePaths.Remove(file);
+                        }
+                    }
                 }));
             }
+        }
+
+
+        private void CancelUpload()
+        {
+            _cancellationTokenSource?.Cancel();
+        }
+
+        private void ShowCancelMessage(int uploadedFilesCount)
+        {
+            var remainingFilesCount = filePaths.Count - uploadedFilesCount;
+            MessageBox.Show($"Tải lên đã bị hủy. Đã tải {uploadedFilesCount} tệp. Các tệp còn lại trong danh sách: {remainingFilesCount}.", "Thông báo");
         }
 
         private void UpdateProgressBar()

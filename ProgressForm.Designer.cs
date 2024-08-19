@@ -64,7 +64,6 @@
             this.Controls.Add(this.statusLabel);
             this.Controls.Add(this.progressBar);
             this.Name = "ProgressForm";
-            this.Load += new System.EventHandler(this.ProgressForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
         }

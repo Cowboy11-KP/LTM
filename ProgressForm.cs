@@ -13,18 +13,13 @@ namespace UploadGoogleDrive
 
         public ProgressBar ProgressBar => this.progressBar;
         public Label StatusLabel => this.statusLabel;
-        public new Button CancelButton =>  this.cancelButton;
-
-        private void ProgressForm_Load(object sender, EventArgs e)
-        {
-
-        }
+        public new Button CancelButton => this.cancelButton;
 
         private void CancelButton_Click(object sender, EventArgs e)
         {
-            OnCancelRequested();
+            OnCancelRequested?.Invoke(); // Gọi sự kiện CancelRequested
         }
 
-        public event Action OnCancelRequested = () => { };
+        public event Action OnCancelRequested;
     }
 }
