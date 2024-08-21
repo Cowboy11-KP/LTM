@@ -120,7 +120,7 @@ namespace UploadGoogleDrive
             progressForm.ProgressBar.Maximum = filePaths.Count;
             progressForm.ProgressBar.Value = 0;
             progressForm.CancelButton.Enabled = true;
-            progressForm.StatusLabel.Text = "Bắt đầu tải lên...";
+            progressForm.StatusLabel.Text = "Start uploading...";
 
             _cancellationTokenSource = new CancellationTokenSource();
             var token = _cancellationTokenSource.Token;
@@ -159,14 +159,14 @@ namespace UploadGoogleDrive
             try
             {
                 await Task.WhenAll(uploadTasks);
-                progressForm.Invoke((Action)(() => progressForm.StatusLabel.Text = "Hoàn tất. Tất cả các tệp đã được tải lên thành công."));
+                progressForm.Invoke((Action)(() => progressForm.StatusLabel.Text = "Completed. All files have been uploaded successfully."));
             }
             catch (OperationCanceledException)
             {
                 progressForm.Invoke((Action)(() =>
                 {
                     ShowCancelMessage(uploadedFilesCount);
-                    progressForm.StatusLabel.Text = "Tải lên đã bị hủy.";
+                    progressForm.StatusLabel.Text = "Upload has been cancelled.";
                 }));
             }
             finally
@@ -199,13 +199,13 @@ namespace UploadGoogleDrive
         private void ShowCancelMessage(int uploadedFilesCount)
         {
             var remainingFilesCount = filePaths.Count - uploadedFilesCount;
-            MessageBox.Show($"Tải lên đã bị hủy. Đã tải {uploadedFilesCount} tệp. Các tệp còn lại trong danh sách: {remainingFilesCount}.", "Thông báo");
+            MessageBox.Show($"Upload has been canceled.{uploadedFilesCount} files uploaded. Remaining files in the list: {remainingFilesCount}.", "Thông báo");
         }
 
         private void UpdateProgressBar()
         {
             progressForm.ProgressBar.Value++;
-            progressForm.StatusLabel.Text = $"Đã tải {progressForm.ProgressBar.Value} / {progressForm.ProgressBar.Maximum} tệp";
+            progressForm.StatusLabel.Text = $"Uploaded {progressForm.ProgressBar.Value} / {progressForm.ProgressBar.Maximum} files";
         }
 
         private void ButtonRemove_Click(object sender, EventArgs e)
@@ -263,11 +263,11 @@ namespace UploadGoogleDrive
             try
             {
                 string email = googleDriveService.GetUserEmail();
-                labelUserEmail.Text = $"Tài khoản: {email}";
+                labelUserEmail.Text = $"Account: {email}";
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Đã xảy ra lỗi khi lấy thông tin tài khoản: {ex.Message}");
+                MessageBox.Show($"An error occurred while retrieving account information: {ex.Message}");
             }
         }
     }
